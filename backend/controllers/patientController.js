@@ -18,7 +18,10 @@ export const requestDoctor = async (req, res, next) => {
     const doctor = await User.findOne({ _id: doctorId, role: "doctor" });
     if (!doctor) return res.status(404).json({ error: "Doctor not found" });
 
-    const patient = await User.findById(req.user.id).select("linkedDoctor requestedDoctor");
+    const patient = await User.findById(req.user.id).select("linkedDoctor requestedDoctor email");
+    if (patient?.email && patient.email === doctor.email) {
+      return res.status(400).json({ error: "You cannot connect your patient account to your own doctor account." });
+    }
     if (patient?.linkedDoctor) {
       return res.status(409).json({ error: "You are already connected to a doctor." });
     }

@@ -89,7 +89,7 @@ export function LoginScreen() {
 
     const payload = isRegistering
       ? { ...formData, role: selectedRole }
-      : { email: formData.email, password: formData.password };
+      : { email: formData.email, password: formData.password, role: selectedRole };
 
     try {
       const response = await apiClient(endpoint, {
@@ -186,7 +186,7 @@ export function LoginScreen() {
       const response = await apiClient(`${API_BASE_URL}/api/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email, otp }),
+        body: JSON.stringify({ email: formData.email, otp, role: selectedRole }),
       });
 
       const data = await response.json().catch(() => ({}));
@@ -218,7 +218,7 @@ export function LoginScreen() {
       const response = await apiClient(`${API_BASE_URL}/api/auth/resend-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email }),
+        body: JSON.stringify({ email: formData.email, role: selectedRole }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -358,7 +358,7 @@ export function LoginScreen() {
                 {!isRegistering && (
                   <button
                     type="button"
-                    onClick={() => navigate("/reset-password")}
+                    onClick={() => navigate("/reset-password", { state: { role: selectedRole } })}
                     className="text-xs font-semibold hover:underline self-end cursor-pointer"
                     style={{ color: T.primary }}
                   >
@@ -604,7 +604,7 @@ export function LoginScreen() {
                   <div className="flex justify-end -mt-1">
                     <button
                       type="button"
-                      onClick={() => navigate("/reset-password")}
+                      onClick={() => navigate("/reset-password", { state: { role: selectedRole } })}
                       className="text-xs font-semibold hover:underline cursor-pointer"
                       style={{ color: T.primary }}
                     >

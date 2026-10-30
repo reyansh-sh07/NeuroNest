@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Brain } from "lucide-react";
 import { T } from "@/models/constant.js";
 import { Button, Card } from "@/views/components/common/Primitive.jsx";
@@ -7,6 +7,8 @@ import { accountController } from "@/controllers/accountController.js";
 
 export function PasswordReset() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [role, setRole] = useState(location.state?.role === "doctor" ? "doctor" : "patient");
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -20,7 +22,7 @@ export function PasswordReset() {
     e.preventDefault();
     setLoading(true); setError(""); setMessage("");
     try {
-      const data = await accountController.requestPasswordReset(email);
+      const data = await accountController.requestPasswordReset(email, role);
       setMessage(data.message);
       setStep(2);
     } catch (err) { setError(err.message); }
@@ -36,7 +38,7 @@ export function PasswordReset() {
 
     setLoading(true);
     try {
-      const data = await accountController.resetPassword({ email, otp, newPassword });
+      const data = await accountController.resetPassword({ email, otp, newPassword, role });
       setMessage(data.message);
       setStep(3);
     } catch (err) { setError(err.message); }
@@ -66,6 +68,23 @@ export function PasswordReset() {
         {step === 1 && (
           <form onSubmit={requestReset} className="flex flex-col gap-4">
             <p className="text-sm" style={{ color: T.inkSoft }}>Enter the email associated with your NeuroNest account. We'll send a 6-digit reset code.</p>
+            <div className="flex gap-2">
+              {["patient", "doctor"].map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setRole(r)}
+                  className="flex-1 py-2 rounded-xl text-sm font-semibold capitalize cursor-pointer"
+                  style={{
+                    border: `1px solid ${role === r ? T.primary : T.line}`,
+                    background: role === r ? T.primarySoft : T.surface,
+                    color: role === r ? T.primaryDark : T.inkSoft,
+                  }}
+                >
+                  {r} account
+                </button>
+              ))}
+            </div>
             <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full p-3 rounded-xl outline-none" style={{ border: `1px solid ${T.line}`, background: T.surface, color: T.ink }} />
             <Button disabled={loading} className="w-full py-3.5">{loading ? "Sending code..." : "Send reset code"}</Button>
           </form>

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "email:test": "node scripts/testEmail.js"
+    "email:test": "node scripts/testEmail.js",
+    "migrate:accounts": "node scripts/migrateAccountIndexes.js"
   },
   "keywords": [],
   "author": "",

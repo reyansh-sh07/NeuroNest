@@ -12,6 +12,11 @@ const MIN_PASSWORD_LENGTH = 8;
 const MAX_OTP_ATTEMPTS = 5;
 const OTP_RESEND_COOLDOWN_MS = 30 * 1000;
 
+// The same email can have a patient account and a doctor account, so every
+// lookup by email must also say which role it is for.
+const parseRole = (role) => (role === "doctor" || role === "patient" ? role : null);
+const ROLE_REQUIRED = { error: "Account type (patient or doctor) is required" };
+
 export const register = async (req, res, next) => {
   try {
     const { name, email, password, role, age, condition, risk } = req.body;
@@ -23,9 +28,9 @@ export const register = async (req, res, next) => {
     const normalizedEmail = email.toLowerCase().trim();
     const normalizedRole = role === "doctor" ? "doctor" : "patient";
 
-    const existingUser = await User.findOne({ email: normalizedEmail });
+    const existingUser = await User.findOne({ email: normalizedEmail, role: normalizedRole });
     if (existingUser) {
-      return res.status(400).json({ error: "Email is already registered" });
+      return res.status(400).json({ error: `A ${normalizedRole} account with this email already exists` });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -52,7 +57,8 @@ export const register = async (req, res, next) => {
       age: age ? Number(age) : null,
       condition: condition || "None listed",
       risk: risk || "mint",
-      patientConnectionCode,
+      // undefined (not null) for doctors so the field is simply absent
+      patientConnectionCode: patientConnectionCode || undefined,
       isVerified: false,
       otp: hashedOtp,
       otpAttempts: 0,
@@ -93,12 +99,14 @@ export const register = async (req, res, next) => {
 export const verifyOtp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
+    const role = parseRole(req.body.role);
 
     if (!email || !otp) {
       return res.status(400).json({ error: "Email and OTP are required" });
     }
+    if (!role) return res.status(400).json(ROLE_REQUIRED);
 
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    const user = await User.findOne({ email: email.toLowerCase().trim(), role });
     if (!user) return res.status(404).json({ error: "User not found" });
     if (user.isVerified) return res.status(400).json({ error: "Account is already verified" });
     if (!user.otp || !user.otpExpiresAt) {
@@ -152,9 +160,11 @@ export const verifyOtp = async (req, res, next) => {
 export const resendOtp = async (req, res, next) => {
   try {
     const { email } = req.body;
+    const role = parseRole(req.body.role);
     if (!email) return res.status(400).json({ error: "Email is required" });
+    if (!role) return res.status(400).json(ROLE_REQUIRED);
 
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    const user = await User.findOne({ email: email.toLowerCase().trim(), role });
     if (!user) return res.status(404).json({ error: "User not found" });
     if (user.isVerified) return res.status(400).json({ error: "Account is already verified" });
 
@@ -195,12 +205,14 @@ export const resendOtp = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    const role = parseRole(req.body.role);
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
+    if (!role) return res.status(400).json(ROLE_REQUIRED);
 
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    const user = await User.findOne({ email: email.toLowerCase().trim(), role });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
@@ -271,12 +283,14 @@ export const getMe = async (req, res, next) => {
 export const forgotPassword = async (req, res, next) => {
   try {
     const email = String(req.body.email || "").toLowerCase().trim();
+    const role = parseRole(req.body.role);
 
     if (!email) {
       return res.status(400).json({ error: "Email is required" });
     }
+    if (!role) return res.status(400).json(ROLE_REQUIRED);
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, role });
 
     // Do not reveal whether an email exists. This prevents account enumeration.
     if (!user || !user.isVerified) {
@@ -323,6 +337,9 @@ export const resetPassword = async (req, res, next) => {
     const email = String(req.body.email || "").toLowerCase().trim();
     const otp = String(req.body.otp || "").trim();
     const newPassword = String(req.body.newPassword || "");
+    const role = parseRole(req.body.role);
+
+    if (!role) return res.status(400).json(ROLE_REQUIRED);
 
     if (!email || !otp || !newPassword) {
       return res.status(400).json({ error: "Email, OTP and new password are required" });
@@ -336,7 +353,7 @@ export const resetPassword = async (req, res, next) => {
       return res.status(400).json({ error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters long` });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, role });
     if (!user || !user.isVerified) {
       return res.status(400).json({ error: "Invalid or expired password reset code" });
     }

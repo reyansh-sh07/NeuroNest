@@ -45,9 +45,11 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
     lowercase: true,
     trim: true,
+    // NOTE: no `unique: true` here any more. Uniqueness is on (email + role),
+    // see the compound index below, so one email can own one patient account
+    // AND one doctor account.
   },
   password: { type: String, required: true },
   tokenVersion: { type: Number, default: 0 },
@@ -116,7 +118,8 @@ const userSchema = new mongoose.Schema({
     default: null,
   },
   // Random, non-guessable patient connection code. The MC- prefix is UI-only.
-  patientConnectionCode: { type: String, unique: true, sparse: true, index: true },
+  // Only patients have one. Leave it undefined (NOT null) for doctors.
+  patientConnectionCode: { type: String, default: undefined },
   linkedDoctor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -127,5 +130,15 @@ const userSchema = new mongoose.Schema({
 
   createdAt: { type: Date, default: Date.now },
 });
+
+// Same email may exist once per role (patient + doctor), never twice in the same role.
+userSchema.index({ email: 1, role: 1 }, { unique: true });
+
+// Unique only for documents that actually have a string code, so any number of
+// doctors (no code) can exist. `sparse` is NOT enough: it still indexes null.
+userSchema.index(
+  { patientConnectionCode: 1 },
+  { unique: true, partialFilterExpression: { patientConnectionCode: { $type: "string" } } },
+);
 
 export const User = mongoose.model("User", userSchema);
