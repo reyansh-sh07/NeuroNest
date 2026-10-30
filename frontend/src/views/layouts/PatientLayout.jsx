@@ -50,16 +50,19 @@ export function PatientLayout({ active, setActive, children, onLogout }) {
       {/* Desktop/tablet sidebar - hidden below md, where the bottom tab
           bar takes over navigation instead. */}
       <aside
-        className="hidden md:flex w-24 flex-col items-center py-6 gap-8"
+        className="hidden md:flex w-[248px] shrink-0 flex-col items-stretch px-5 py-7 gap-8"
         style={{ background: T.surface, borderRight: `1px solid ${T.line}` }}
       >
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{ background: T.primary }}
-        >
-          <Brain size={18} color="#fff" />
+        <div className="flex items-center gap-3 px-2">
+          <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(145deg, #286b62, #4b9280)" }}>
+            <Brain size={19} color="#fff" />
+          </div>
+          <div>
+            <div className="font-bold tracking-tight text-base" style={{ color: T.ink }}>NeuroNest</div>
+            <div className="text-[11px] tracking-[.12em] uppercase" style={{ color: T.inkSoft }}>Cognitive care</div>
+          </div>
         </div>
-        <nav className="flex flex-col gap-6 mt-4">
+        <nav className="flex flex-col gap-2 mt-2">
           {nav.map((n) => {
             const Icon = n.icon;
             const isActive = active === n.key;
@@ -67,10 +70,10 @@ export function PatientLayout({ active, setActive, children, onLogout }) {
               <button
                 key={n.key}
                 onClick={() => setActive(n.key)}
-                className="flex flex-col items-center gap-1 cursor-pointer"
+                className="flex flex-row items-center gap-3 cursor-pointer text-left px-3 py-3 rounded-xl w-full"
               >
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                   style={{
                     background: isActive ? T.primarySoft : "transparent",
                   }}
@@ -78,7 +81,7 @@ export function PatientLayout({ active, setActive, children, onLogout }) {
                   <Icon size={18} color={isActive ? T.primary : T.inkSoft} />
                 </div>
                 <span
-                  className="text-xs font-medium leading-tight text-center"
+                  className="text-sm font-semibold leading-tight"
                   style={{ color: isActive ? T.primary : T.inkSoft }}
                 >
                   {n.label}
@@ -87,7 +90,7 @@ export function PatientLayout({ active, setActive, children, onLogout }) {
             );
           })}
         </nav>
-        <button onClick={onLogout} className="mt-auto cursor-pointer">
+        <button onClick={onLogout} className="mt-auto cursor-pointer self-start px-3 py-3 rounded-xl hover:bg-black/5">
           <LogOut size={16} color={T.inkSoft} />
         </button>
       </aside>

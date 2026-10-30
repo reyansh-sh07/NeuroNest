@@ -36,7 +36,7 @@ export function DoctorLayout({ active, setActive, children, onLogout }) {
       {/* Mobile-only top bar with hamburger toggle */}
       <header
         className="md:hidden flex items-center justify-between px-4 py-3 sticky top-0 z-30"
-        style={{ background: T.ink }}
+        style={{ background: "#173b37", backgroundImage: "radial-gradient(circle at 15% 0%, rgba(119,177,148,.18), transparent 45%)" }}
       >
         <button
           onClick={() => setDrawerOpen(true)}
@@ -51,7 +51,10 @@ export function DoctorLayout({ active, setActive, children, onLogout }) {
           >
             <Brain size={14} color="#fff" />
           </div>
-          <span className="text-white font-semibold text-sm">NeuroNest</span>
+          <div>
+            <span className="text-white font-bold tracking-tight text-base">NeuroNest</span>
+            <div className="text-[10px] uppercase tracking-[.16em] text-white/45">Care workspace</div>
+          </div>
         </div>
         {/* spacer so the brand stays visually centered against the menu icon */}
         <div className="w-6" />
@@ -59,19 +62,22 @@ export function DoctorLayout({ active, setActive, children, onLogout }) {
 
       {/* Desktop/tablet sidebar - always visible from md up */}
       <aside
-        className="hidden md:flex w-60 flex-col p-5"
-        style={{ background: T.ink }}
+        className="hidden md:flex w-[264px] shrink-0 flex-col p-6"
+        style={{ background: "#173b37", backgroundImage: "radial-gradient(circle at 15% 0%, rgba(119,177,148,.18), transparent 45%)" }}
       >
         <div className="flex items-center gap-2 mb-8 px-1">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg"
             style={{ background: T.primary }}
           >
             <Brain size={16} color="#fff" />
           </div>
-          <span className="text-white font-semibold text-sm">NeuroNest</span>
+          <div>
+            <span className="text-white font-bold tracking-tight text-base">NeuroNest</span>
+            <div className="text-[10px] uppercase tracking-[.16em] text-white/45">Care workspace</div>
+          </div>
         </div>
-        <nav className="flex flex-col gap-1 flex-1">
+        <nav className="flex flex-col gap-2 flex-1">
           {nav.map((n) => {
             const Icon = n.icon;
             const isActive = active === n.key;
@@ -79,7 +85,7 @@ export function DoctorLayout({ active, setActive, children, onLogout }) {
               <button
                 key={n.key}
                 onClick={() => setActive(n.key)}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left cursor-pointer"
+                className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-left cursor-pointer"
                 style={{
                   background: isActive
                     ? "rgba(255,255,255,0.08)"
@@ -94,7 +100,7 @@ export function DoctorLayout({ active, setActive, children, onLogout }) {
         </nav>
         <button
           onClick={onLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm cursor-pointer"
+          className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm cursor-pointer"
           style={{ color: "rgba(255,255,255,0.5)" }}
         >
           <LogOut size={16} /> Logout
@@ -107,12 +113,12 @@ export function DoctorLayout({ active, setActive, children, onLogout }) {
         <div className="md:hidden fixed inset-0 z-40 flex">
           <div
             className="w-64 flex flex-col p-5 h-full overflow-auto"
-            style={{ background: T.ink }}
+            style={{ background: "#173b37", backgroundImage: "radial-gradient(circle at 15% 0%, rgba(119,177,148,.18), transparent 45%)" }}
           >
             <div className="flex items-center justify-between mb-8 px-1">
               <div className="flex items-center gap-2">
                 <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg"
                   style={{ background: T.primary }}
                 >
                   <Brain size={16} color="#fff" />
@@ -129,7 +135,7 @@ export function DoctorLayout({ active, setActive, children, onLogout }) {
               </button>
             </div>
 
-            <nav className="flex flex-col gap-1 flex-1">
+            <nav className="flex flex-col gap-2 flex-1">
               {nav.map((n) => {
                 const Icon = n.icon;
                 const isActive = active === n.key;
@@ -137,7 +143,7 @@ export function DoctorLayout({ active, setActive, children, onLogout }) {
                   <button
                     key={n.key}
                     onClick={() => handleNavClick(n.key)}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left cursor-pointer"
+                    className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-left cursor-pointer"
                     style={{
                       background: isActive
                         ? "rgba(255,255,255,0.08)"
@@ -153,7 +159,7 @@ export function DoctorLayout({ active, setActive, children, onLogout }) {
 
             <button
               onClick={onLogout}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm cursor-pointer"
+              className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm cursor-pointer"
               style={{ color: "rgba(255,255,255,0.5)" }}
             >
               <LogOut size={16} /> Logout
